@@ -1,6 +1,6 @@
 canavg <- function(gla_detailed_report_txt, eye_y=-8, eye_z=10, display_diagnostics=TRUE) {
 
-print("test1")
+print("test2")
 
 ### Define constants and XY grid of points on mirror surface --------------------------------------
 rad_to_deg_coeff <- 180 / pi    # Coefficient to convert radians to degrees
