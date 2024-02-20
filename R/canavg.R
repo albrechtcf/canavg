@@ -1,6 +1,9 @@
 canavg <- function(gla_detailed_report_txt, eye_y=-8, eye_z=10, display_diagnostics=TRUE) {
 
-print("test2")
+print("test3")
+
+packages <- c("car","ggplot2","rgl","scatterplot3d","tidyverse")
+lapply(packages, library, character.only = TRUE)
 
 ### Define constants and XY grid of points on mirror surface --------------------------------------
 rad_to_deg_coeff <- 180 / pi    # Coefficient to convert radians to degrees

@@ -10,6 +10,7 @@ License: What license is it under?
 Depends: R (>= 3.5.0)
 Imports:
     car,
+    dplyr,
     ggplot2,
     tidyverse,
     rgl,
