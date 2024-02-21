@@ -1,25 +1,30 @@
-canavg <- function(gla_detailed_report_txt, eye_y=-8, eye_z=10, display_diagnostics=TRUE) {
+canavg <- function(gla_detailed_report_txt, eye_y=-8, eye_z=10, survey_method = "cardinaldirections", display_diagnostics=TRUE) {
 
-print("test3")
+print("test4")
 
 packages <- c("car","ggplot2","rgl","scatterplot3d","tidyverse")
 lapply(packages, library, character.only = TRUE)
 
-### Define constants and XY grid of points on mirror surface --------------------------------------
+### -------------------------------------------------------------------------------------------------------------------
+### Define constants and XY grid of points on mirror surface ----------------------------------------------------------
 rad_to_deg_coeff <- 180 / pi    # Coefficient to convert radians to degrees
 deg_to_rad_coeff <- pi / 180    # Coefficient to convert degrees to radians
 r_sphere <- 3                   # Radius of sphere (inches)
 c_sphere <- r_sphere * 2 * pi   # Circumference of sphere (inches)
 quarter_c_sphere <- c_sphere/4  # One quarter of the circumference (inches)
-cardDirs <- c("n","e","s","w")  # name cardinal directions
 
-# X and Y coordinates of 96 surface points, treating mirror surface as a plane
-eng_coords <- tibble::tibble(
+if (survey_method == "cardinaldirections") {
+  # name cardinal directions
+  cardDirs <- c("n","e","s","w")
+  # X and Y coordinates of 96 surface points, treating mirror surface as a plane
+  eng_coords <- tibble::tibble(
   x_eng_vect = c(0.0625,0.1875,0.3125,0.4375,0.5625,0.6875,0.0625,0.1875,0.3125,0.4375,0.5625,0.6875,0.0625,0.1875,0.3125,0.4375,0.0625,0.1875,0.3125,0.4375,0.0625,0.1875,0.0625,0.1875,-0.0625,-0.1875,-0.3125,-0.4375,-0.5625,-0.6875,-0.0625,-0.1875,-0.3125,-0.4375,-0.5625,-0.6875,-0.0625,-0.1875,-0.3125,-0.4375,-0.0625,-0.1875,-0.3125,-0.4375,-0.0625,-0.1875,-0.0625,-0.1875,0.0625,0.1875,0.3125,0.4375,0.5625,0.6875,0.0625,0.1875,0.3125,0.4375,0.5625,0.6875,0.0625,0.1875,0.3125,0.4375,0.0625,0.1875,0.3125,0.4375,0.0625,0.1875,0.0625,0.1875,-0.0625,-0.1875,-0.3125,-0.4375,-0.5625,-0.6875,-0.0625,-0.1875,-0.3125,-0.4375,-0.5625,-0.6875,-0.0625,-0.1875,-0.3125,-0.4375,-0.0625,-0.1875,-0.3125,-0.4375,-0.0625,-0.1875,-0.0625,-0.1875),
   y_eng_vect = c(0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.1875,0.1875,0.1875,0.1875,0.1875,0.1875,0.3125,0.3125,0.3125,0.3125,0.4375,0.4375,0.4375,0.4375,0.5625,0.5625,0.6875,0.6875,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.1875,0.1875,0.1875,0.1875,0.1875,0.1875,0.3125,0.3125,0.3125,0.3125,0.4375,0.4375,0.4375,0.4375,0.5625,0.5625,0.6875,0.6875,-0.0625,-0.0625,-0.0625,-0.0625,-0.0625,-0.0625,-0.1875,-0.1875,-0.1875,-0.1875,-0.1875,-0.1875,-0.3125,-0.3125,-0.3125,-0.3125,-0.4375,-0.4375,-0.4375,-0.4375,-0.5625,-0.5625,-0.6875,-0.6875,-0.0625,-0.0625,-0.0625,-0.0625,-0.0625,-0.0625,-0.1875,-0.1875,-0.1875,-0.1875,-0.1875,-0.1875,-0.3125,-0.3125,-0.3125,-0.3125,-0.4375,-0.4375,-0.4375,-0.4375,-0.5625,-0.5625,-0.6875,-0.6875))
+}
 
-  ### Initialize output data frames -----------------------------------------------------------------
-  # Tibble for XYZ coordinates of each of 96 points
+### -------------------------------------------------------------------------------------------------------------------
+### Initialize output data frames -------------------------------------------------------------------------------------
+# Tibble for XYZ coordinates of each of 96 points
   out <- tibble(
     x_orgPlane = numeric(0),
     y_orgPlane = numeric(0),
@@ -44,25 +49,35 @@ eng_coords <- tibble::tibble(
     group = factor("center")
   )
 
-  ### compute XYZ coordinates n 3D space for each of 96 points on the mirror surface ----------------
+### -------------------------------------------------------------------------------------------------------------------
+### compute XYZ coordinates n 3D space for each of 96 points on the mirror surface ------------------------------------
   # note - anything called 'eng' or 'engraved' refers to the mirror surface w/ its engraved grid
   # note - this is not necessary to re-compute with each call to this function, but it's included in order to be transparent about the XY -> XYZ conversion process.
   for (i in seq_len(nrow(eng_coords))) {
+    # pick row corresponding to
     x_engraved <- eng_coords[i,1]
     y_engraved <- eng_coords[i,2]
 
-    # Calculate x component of point on origin-intersect plane (i.e. horizon)
+    # Note - all XYZ coordinates refer to an origin at the center of the sphere partially described by the mirror surface
+
+    # Step 1: Calculate X component of point on XY plane in XYZ coordinate system
+    # calculate angle (radians) below XY plane of line w/ end points at origin and point's X value on engraved grid's X axis
+    # here "dec" indicates "declination"
     dec_x <- ((90 - (x_engraved / (c_sphere / 4) * 90)) * -1) * deg_to_rad_coeff
+    # Use known angle and hypotenuse length (3 in, radius of sphere) to calculate the X component of the point in XYZ space
     x_cartPlane <- cos(dec_x) * r_sphere
 
-    # Calculate y component of point on origin-intersect plane (i.e. horizon)
+    # Step 2: Calculate Y component of point on XY plane in XYZ coordinate system
+    # calculate angle (radians) below XY plane of line w/ end points at origin and point's Y value on engraved grid's X axis
+    # here "dec" indicates "declination"
     dec_y <- ((90 - (y_engraved / (c_sphere / 4) * 90)) * -1) * deg_to_rad_coeff
+    # Use known angle and hypotenuse length (3 in, radius of sphere) to calculate the Y component of the point in XYZ space
     y_cartPlane <- cos(dec_y) * r_sphere
 
-    # Calculate azimuthal angle of point
+    # Step 3: Calculate Z component of point in XYZ coordinate system
+    # Calculate angle (radians) between line extending from origin to positive infinity on the XYZ Y axis and line with end points at origin and XY coordinates in XYZ space as calculated above
     az_ang_rad <- atan(x_cartPlane / y_cartPlane)
-
-    # Calculate z value of sphere surface at XY point on origin-intersect cartesian plane
+    # Calculate z value of sphere surface at XY point in XYZ space
     hyp <- sqrt(x_cartPlane^2 + y_cartPlane^2)
     z_cartPlane <- sqrt(r_sphere^2 - hyp^2) * -1
 
@@ -70,6 +85,7 @@ eng_coords <- tibble::tibble(
     out[i,1] <- x_cartPlane
     out[i,2] <- y_cartPlane
     out[i,3] <- z_cartPlane
+    # include string "mirror" to aid in later categorization and visualization
     out[i,4] <- "mirror"
 
     # Combine mirror and bounding box data for the last point
@@ -80,18 +96,26 @@ eng_coords <- tibble::tibble(
     }
   }
 
-  ### Compute slope and bearing of line reflecting off mirror surface emitted from eye --------------
+### -------------------------------------------------------------------------------------------------------------------
+### Compute slope and bearing of line reflecting off mirror surface emitted from eye ----------------------------------
   # define point of light emission in XYZ space (eye position, with Y and X components defined in function call
+  # note - these values are given default values in function canavg, but can be modified manually
   eye_position_xyz <- c(0, eye_y, eye_z)
 
   # Calculate plane tangent to sphere surface at each of 96 points
-  for (j in 1:4) {
+  # loop j is for stepping through each measurement direction
+  for (j in 1:length(cardDirs)) {
     if (j == 1) {
+      # define empty list for storage of outputs
       list_out <- vector(mode='list', length=4)
-      correction <- c(-90,0,90,180) # code below defaults to E as azimuth 0, this corrects to appropriate cardinal direction
-      #correction <- rep(-90,4)
+      # code below defaults to E as azimuth 0, this corrects to appropriate cardinal direction correction such that due
+      if (survey_method == "cardinaldirections") {
+        correction <- c(-90,0,90,180)
+      }
     }
 
+    # note - i loop is nested within j loop
+    # note - object out contains XYZ coordinates of 96 points
     for (i in 1:nrow(out)) {
       if (i == 1) {
         sphere_origin <- c(0, 0, 0)
@@ -103,9 +127,7 @@ eng_coords <- tibble::tibble(
       }
 
       # Define the points
-      reflection_point <- out2[i,2:4] %>%
-        unlist() %>%
-        as.vector()
+      reflection_point <- out2[i,2:4] %>% unlist() %>% as.vector()
 
       # Calculate the incident vector
       incident_vector <- reflection_point - eye_position_xyz
@@ -134,6 +156,9 @@ eng_coords <- tibble::tibble(
         mutate(total_brightness = NA_real_)
     }
   }
+
+  # clean up space - all data are now contained in object out3
+  rm(out,out2)
 
   ### read in + use report from Gap Light Analyzer --------------------------------------------------
   # note - This is report output by GLA as .txt file, converted to .xlsx and
