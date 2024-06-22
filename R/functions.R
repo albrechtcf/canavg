@@ -3,7 +3,8 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
   ### argument definitions
   # gla_detrep: Gap Light Analyzer detailed report, provided by external software. No default.
   # eyey: Y coordinate of eye position in XYZ space relative to center of sphere. Default == -8
-  # eyez: X coordinate of eye position in XYZ space relative to center of sphere. Default == 10
+  # eyez: Z coordinate of eye position in XYZ space relative to center of sphere. Default == 10
+  # NOTE - eye position X coordinate is assumed to == 0
   # survmeth: Are you using cardinal or compass rose directions? Default == "card"
   # diagnostics: Do you want to print diagnostic figures? Default == TRUE
 
