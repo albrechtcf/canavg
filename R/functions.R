@@ -1,6 +1,11 @@
-# testes testes
+skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diagnostics=TRUE) {
 
-skypoints <- function(gla_detrep, eyey=-8, eyez=10, survmeth = "card", diagnostics=TRUE) {
+  ### argument definitions
+  # gla_detrep: Gap Light Analyzer detailed report, provided by external software. No default.
+  # eyey: Y coordinate of eye position in XYZ space relative to center of sphere. Default == -8
+  # eyez: X coordinate of eye position in XYZ space relative to center of sphere. Default == 10
+  # survmeth: Are you using cardinal or compass rose directions? Default == "card"
+  # diagnostics: Do you want to print diagnostic figures? Default == TRUE
 
   ### load in packages
   packages <- c("car","ggplot2","rgl","scatterplot3d","tidyverse")
@@ -24,6 +29,8 @@ skypoints <- function(gla_detrep, eyey=-8, eyez=10, survmeth = "card", diagnosti
     dirscomplete <- c("n", "ne", "e", "se", "s", "sw", "w", "nw")
     x_eng_vect <- NA
     y_eng_vect <- NA
+  } else if (survmeth != "card" & survmeth != "rose") {
+    stop("Invalid value for 'survmeth'. Please use 'card' or 'rose'.")
   }
 
   ### Initialize output data frames
@@ -162,12 +169,14 @@ skypoints <- function(gla_detrep, eyey=-8, eyez=10, survmeth = "card", diagnosti
   }
 }
 
-weights <- function(gla_detrep, eyey=-8, eyez=10, survmeth = "card", diagnostics=TRUE) {
+weights <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diagnostics=TRUE) {
 
   if (survmeth == "card") {
     dirscomplete <- c("n","e","s","w")
   } else if (survmeth == "rose") {
     dirscomplete <- c("n", "ne", "e", "se", "s", "sw", "w", "nw")
+  } else if (survmeth != "card" & survmeth != "rose") {
+    stop("Invalid value for 'survmeth'. Please use 'card' or 'rose'.")
   }
 
   # call function skypoints() internally to generate sky points report
@@ -327,4 +336,4 @@ weights <- function(gla_detrep, eyey=-8, eyez=10, survmeth = "card", diagnostics
   }
 }
 
-weights("detailed_output_20240218.txt")
+
