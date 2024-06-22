@@ -1,3 +1,5 @@
+# testes testes
+
 skypoints <- function(gla_detrep, eyey=-8, eyez=10, survmeth = "card", diagnostics=TRUE) {
 
   ### load in packages
