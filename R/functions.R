@@ -1,12 +1,4 @@
-skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diagnostics=TRUE) {
-
-  ### argument definitions
-  # gla_detrep: Gap Light Analyzer detailed report, provided by external software. No default.
-  # eyey: Y coordinate of eye position in XYZ space relative to center of sphere. Default == -8
-  # eyez: Z coordinate of eye position in XYZ space relative to center of sphere. Default == 10
-  # NOTE - eye position X coordinate is assumed to == 0
-  # survmeth: Are you using cardinal or compass rose directions? Default == "card"
-  # diagnostics: Do you want to print diagnostic figures? Default == TRUE
+canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weightscalc = TRUE,  diagnostics=TRUE) {
 
   ### load in packages
   packages <- c("car","ggplot2","rgl","scatterplot3d","tidyverse")
@@ -15,14 +7,14 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
   ### Define constants and XY grid of points on mirror surface
   rad_to_deg_coeff <- 180 / pi    # Coefficient to convert radians to degrees
   deg_to_rad_coeff <- pi / 180    # Coefficient to convert degrees to radians
-  r_sphere <- 3                   # Radius of sphere (inches)
+  r_sphere <- 3                   # Radius of sphere (inches), provided by mirror densiometer user manual
   c_sphere <- r_sphere * 2 * pi   # Circumference of sphere (inches)
   quarter_c_sphere <- c_sphere/4  # One quarter of the circumference (inches)
 
   if (survmeth == "card") {
     # name cardinal directions
     dirscomplete <- c("n","e","s","w")
-    # X and Y coordinates of 96 surface points, treating mirror surface as a plane
+    # X and Y coordinates of 96 engraved surface points, treating mirror surface as a flat plane w/o hemispherical shape
     eng_coords <- tibble::tibble(
       x_eng_vect = c(0.0625,0.1875,0.3125,0.4375,0.5625,0.6875,0.0625,0.1875,0.3125,0.4375,0.5625,0.6875,0.0625,0.1875,0.3125,0.4375,0.0625,0.1875,0.3125,0.4375,0.0625,0.1875,0.0625,0.1875,-0.0625,-0.1875,-0.3125,-0.4375,-0.5625,-0.6875,-0.0625,-0.1875,-0.3125,-0.4375,-0.5625,-0.6875,-0.0625,-0.1875,-0.3125,-0.4375,-0.0625,-0.1875,-0.3125,-0.4375,-0.0625,-0.1875,-0.0625,-0.1875,0.0625,0.1875,0.3125,0.4375,0.5625,0.6875,0.0625,0.1875,0.3125,0.4375,0.5625,0.6875,0.0625,0.1875,0.3125,0.4375,0.0625,0.1875,0.3125,0.4375,0.0625,0.1875,0.0625,0.1875,-0.0625,-0.1875,-0.3125,-0.4375,-0.5625,-0.6875,-0.0625,-0.1875,-0.3125,-0.4375,-0.5625,-0.6875,-0.0625,-0.1875,-0.3125,-0.4375,-0.0625,-0.1875,-0.3125,-0.4375,-0.0625,-0.1875,-0.0625,-0.1875),
       y_eng_vect = c(0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.1875,0.1875,0.1875,0.1875,0.1875,0.1875,0.3125,0.3125,0.3125,0.3125,0.4375,0.4375,0.4375,0.4375,0.5625,0.5625,0.6875,0.6875,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.1875,0.1875,0.1875,0.1875,0.1875,0.1875,0.3125,0.3125,0.3125,0.3125,0.4375,0.4375,0.4375,0.4375,0.5625,0.5625,0.6875,0.6875,-0.0625,-0.0625,-0.0625,-0.0625,-0.0625,-0.0625,-0.1875,-0.1875,-0.1875,-0.1875,-0.1875,-0.1875,-0.3125,-0.3125,-0.3125,-0.3125,-0.4375,-0.4375,-0.4375,-0.4375,-0.5625,-0.5625,-0.6875,-0.6875,-0.0625,-0.0625,-0.0625,-0.0625,-0.0625,-0.0625,-0.1875,-0.1875,-0.1875,-0.1875,-0.1875,-0.1875,-0.3125,-0.3125,-0.3125,-0.3125,-0.4375,-0.4375,-0.4375,-0.4375,-0.5625,-0.5625,-0.6875,-0.6875))
@@ -31,15 +23,17 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
     x_eng_vect <- NA
     y_eng_vect <- NA
   } else if (survmeth != "card" & survmeth != "rose") {
-    stop("Invalid value for 'survmeth'. Please use 'card' or 'rose'.")
+    stop("Invalid value for argument 'survmeth'. Use 'card or rose' only.")
   }
 
   ### Initialize output data frames
-  # Tibble for XYZ coordinates of each of 96 points
+  # Tibble for XYZ coordinates of each of 96 engraved points
+  # This tibble empty now - will be populated row-wise in for loop below
   out <- tibble(
     x_orgPlane = numeric(0),
     y_orgPlane = numeric(0),
     z_orgPlane = numeric(0),
+    # point class grouping factor
     group = factor("mirror")
   )
 
@@ -49,6 +43,7 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
     x_orgPlane = c(-3, -3, 3, 3, -3, -3, 3, 3),
     y_orgPlane = c(-3, 3, -3, 3, -3, 3, -3, 3),
     z_orgPlane = c(-3, -3, -3, -3, 3, 3, 3, 3),
+    # point class grouping factor - this used solely for visualization
     group = factor("boundingbox")
   )
 
@@ -57,12 +52,13 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
     x_orgPlane = c(0),
     y_orgPlane = c(0),
     z_orgPlane = c(0),
+    # point class grouping factor - this used solely for visualization
     group = factor("center")
   )
 
   ### compute XYZ coordinates n 3D space for each of 96 points on the mirror surface
   # note - anything called 'eng' or 'engraved' refers to the mirror surface w/ its engraved grid
-  # note - this is not necessary to re-compute with each call to this function, but it's included in order to be transparent about the XY -> XYZ conversion process.
+  # note - this is not necessary to re-compute with each call to this function, but it's included in order to be transparent about the conversion process between the engraved grid and 3-dimensional space
   for (i in seq_len(nrow(eng_coords))) {
     # pick row corresponding to
     x_engraved <- eng_coords[i,1]
@@ -72,17 +68,18 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
 
     # Step 1: Calculate X component of point on XY plane in XYZ coordinate system
     # calculate angle (radians) below XY plane of line w/ end points at origin and point's X value on engraved grid's X axis
-    # here "dec" indicates "declination"
-    dec_x <- ((90 - (x_engraved / (c_sphere / 4) * 90)) * -1) * deg_to_rad_coeff
+    # here "negalt" indicates "negative altitude", or radians below horizon
+    negalt_x <- ((90 - (x_engraved / (c_sphere / 4) * 90)) * -1) * deg_to_rad_coeff
+
     # Use known angle and hypotenuse length (3 in, radius of sphere) to calculate the X component of the point in XYZ space
-    x_cartPlane <- cos(dec_x) * r_sphere
+    x_cartPlane <- cos(negalt_x) * r_sphere
 
     # Step 2: Calculate Y component of point on XY plane in XYZ coordinate system
     # calculate angle (radians) below XY plane of line w/ end points at origin and point's Y value on engraved grid's X axis
-    # here "dec" indicates "declination"
-    dec_y <- ((90 - (y_engraved / (c_sphere / 4) * 90)) * -1) * deg_to_rad_coeff
+    # here "negalt" indicates "negative altitude", or radians below horizon
+    negalt_y <- ((90 - (y_engraved / (c_sphere / 4) * 90)) * -1) * deg_to_rad_coeff
     # Use known angle and hypotenuse length (3 in, radius of sphere) to calculate the Y component of the point in XYZ space
-    y_cartPlane <- cos(dec_y) * r_sphere
+    y_cartPlane <- cos(negalt_y) * r_sphere
 
     # Step 3: Calculate Z component of point in XYZ coordinate system
     # Calculate angle (radians) between line extending from origin to positive infinity on the XYZ Y axis and line with end points at origin and XY coordinates in XYZ space as calculated above
@@ -98,7 +95,7 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
     # include string "mirror" to aid in later categorization and visualization
     out[i,4] <- "mirror"
 
-    # Combine mirror and bounding box data for the last point
+    # When last iteration is ending, combine tibbles containing computed XYZ coordinates and bounding box and center coordinates
     if (i == nrow(eng_coords)) {
       combined_data <- na.omit(out) %>%
         bind_rows(bound_box) %>%
@@ -108,7 +105,7 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
 
   ### Compute slope and bearing of line reflecting off mirror surface emitted from eye
   # define point of light emission in XYZ space (eye position, with Y and X components defined in function call
-  # note - these values are given default values in function canavg, but can be modified manually
+  # note - these variables are given default values in function skypoints, but can be modified manually
   eye_position_xyz <- c(0, eyey, eyez)
 
   # Calculate plane tangent to sphere surface at each of 96 points
@@ -148,14 +145,14 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
       # Calculate the reflection vector
       reflection_vector <- incident_vector - 2 * sum(incident_vector * normal_vector) * normal_vector
 
-      # Calculate the azimuthal angle (yaw) relative to the X-axis
+      # Calculate the azimuthal angle relative to the X-axis
       azimuthal_angle <- atan2(reflection_vector[2], reflection_vector[1]) * (180 / pi)
       if (azimuthal_angle < 0) {azimuthal_angle <- azimuthal_angle + 180}
       azimuthal_angle2 <- azimuthal_angle + correction[j]
       if (azimuthal_angle2 < 0) {azimuthal_angle2 <- azimuthal_angle2 + 360}
       out2[i,"azmAng"] <- azimuthal_angle2
 
-      # Calculate the altitude (pitch) above the horizon
+      # Calculate the altitude above the horizon
       altitude <- asin(reflection_vector[3] / sqrt(sum(reflection_vector^2))) * (180 / pi)
       out2[i,"altAng"] <- altitude
     }
@@ -163,26 +160,11 @@ skypoints <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diag
     if (j == 4) {
       out3 <- bind_rows(list_out) %>%
         mutate(total_brightness = NA_real_)
-      # clean up space - all data are now contained in object out3
-      rm(out,out2)
-      return(out3)
     }
   }
-}
 
-weights <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diagnostics=TRUE) {
-
-  if (survmeth == "card") {
-    dirscomplete <- c("n","e","s","w")
-  } else if (survmeth == "rose") {
-    dirscomplete <- c("n", "ne", "e", "se", "s", "sw", "w", "nw")
-  } else if (survmeth != "card" & survmeth != "rose") {
-    stop("Invalid value for 'survmeth'. Please use 'card' or 'rose'.")
-  }
-
-  # call function skypoints() internally to generate sky points report
-  out3 <- skypoints(gla_detrep, eyey=-eyey, eyez=eyez, survmeth = survmeth, diagnostics=diagnostics)
-
+  # if using canavg to calculate weighted avg coefficients
+  if (weightscalc == TRUE) {
   ### read in + use report from Gap Light Analyzer --------------------------------------------------
   # note - This is report output by GLA as .txt file, converted to .xlsx and
   # define column names by reading in .txt and pulling in needed strings
@@ -221,14 +203,14 @@ weights <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diagno
   for (k in 1:nrow(out3)) {
     # pull out individual azimuth and altitude values and numbers
     mirrorptAzi <- as.vector(unlist(out3[k,6]))
-    mirrorptDec <- as.vector(unlist(out3[k,7]))
+    mirrorptAlt <- as.vector(unlist(out3[k,7]))
 
     # pick azimuth-altitude bin associated w/ each point and extract insolation value
     out3[k,8] <- gla_report %>%
       # for azimuth - pick the column of azimuth bins which contains the point
       filter(AziDegMax > mirrorptAzi & AziDegMin < mirrorptAzi) %>%
       # for altitude - pick the row within this column which contains the point - this yields a single azi-alt bin
-      filter(AltDegMax > mirrorptDec & AltDegMin < mirrorptDec) %>%
+      filter(AltDegMax > mirrorptAlt & AltDegMin < mirrorptAlt) %>%
       # extract insolation value
       dplyr::select(AboveTotal)
   }
@@ -248,16 +230,9 @@ weights <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diagno
   ### print averaging weights and optionally print diagnostic plots ---------------------------------
   # compute weights
   dirWeights <- dirTotals/sum(dirTotals)
-  # print weights to console
-  print(dirWeights)
-
-  # define output list
-  # list contains all mirror XYZ coordinates, azimuth and altitude of assoc. points in sky, and insolation values
-  output_full <- list(dirWeights,out3)
-  names(output_full) <- c("direction_weights_vector","full_points_data_tibble")
 
   # optionally display diagnostics
-  if (diagnostics == T) {
+  if (diagnostics == TRUE) {
     # Generate 3D scatter plot for visual validation of geometry #
     car::scatter3d(
       y_orgPlane ~ x_orgPlane + z_orgPlane | group,
@@ -334,7 +309,32 @@ weights <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", diagno
         panel.grid.minor = element_line(color = "black", size = 0.25)  # Black minor gridlines
       )
     print(gg2)
+    }
+  # define output list
+  # list contains all mirror XYZ coordinates, azimuth and altitude of assoc. points in sky, and insolation values
+
+    out4 <- out3 %>% select(-group)
+
+    output_full <- list(dirWeights,
+                        out4,
+                        gla_report,
+                        "README: GLA detailed report passed to canavg, weights stored as output list [[1]]")
+
+    names(output_full) <- c("direction_weights_vector","full_points_data_tibble","Raw GLA report","README")
+  } else if (weightscalc == FALSE) {
+
+    out4 <- out3 %>% select(-group)
+    dirWeights <- NA
+    gla_report <- NA
+    output_full <- list(dirWeights,
+                        out4,
+                        gla_report,
+                        "README: No GLA detailed report passed to canavg, weights not calculated")
+
+    names(output_full) <- c("direction_weights_vector","full_points_data_tibble","Raw GLA report","README")
   }
+  return(output_full)
 }
+
 
 
