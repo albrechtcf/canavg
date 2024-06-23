@@ -9,7 +9,6 @@
 #' @param weightscalc Do you want to calculate coefficients for weighted averaging of four or eight measurements, using insolation values derived from the Gap Light Analyzer detailed report. If you using function canavg to calculate sky points only, then set weightscalc == FALSE.
 #' @param diagnostics Do you want to generate graphics to assess functionality of the function?
 
-
 canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weightscalc = TRUE,  diagnostics=TRUE) {
 
   ### load in packages
