@@ -1,3 +1,10 @@
+#' canavg
+#' This function serves two purposes:
+#' 1) Computes points in the sky associated with all survey points on the surface of a concave hemispherical mirror densiometer
+#'
+#' @param gla_detrep raw gla detailed report output
+
+
 canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weightscalc = TRUE,  diagnostics=TRUE) {
 
   ### load in packages
