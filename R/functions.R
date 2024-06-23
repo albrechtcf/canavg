@@ -5,7 +5,9 @@
 #' @param gla_detrep raw gla detailed report output, expressed as "filename.txt"
 #' @param eyey The Y coordinate of the observer's eye when viewing the densiometer as expressed relative to an origin at XYZ coordinates 0, 0, 0. Note - the origin for this XYZ scheme is in the middle of the sphere which is partially described by the physical mirror, exactly 3 inches above (i.e. skyward) of the center of the engraved grid. Defaults to -8.
 #' @param eyez The Z coordinate of the observer's eye when viewing the densiometer as expressed relative to an origin at XYZ coordinates 0, 0, 0. Note - the origin for this XYZ scheme is in the middle of the sphere which is partially described by the physical mirror, exactly 3 inches above (i.e. skyward) of the center of the engraved grid. Defaults to +10.
-#' @param survmeth to be continued...
+#' @param survmeth Input either "card" or "rose" (under development). The canopy densiometer may be used in either of two ways - four measurements taken in each of four cardinal directions, or four measurements taken in each of eight "compass rose" directions (i.e. N, NE, E, SE, S, SW, W, NW) using a reduced mirror area.
+#' @param weightscalc Do you want to calculate coefficients for weighted averaging of four or eight measurements, using insolation values derived from the Gap Light Analyzer detailed report. If you using function canavg to calculate sky points only, then set weightscalc == FALSE.
+#' @param diagnostics Do you want to generate graphics to assess functionality of the function?
 
 
 canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weightscalc = TRUE,  diagnostics=TRUE) {
