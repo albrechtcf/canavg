@@ -13,5 +13,9 @@ Imports:
     ggplot2,
     rgl,
     scatterplot3d,
-    tidyverse
+    dplyr,
+    tidyr,
+    readr,
+    purrr,
+    tibble
 RoxygenNote: 7.3.1

@@ -89,6 +89,10 @@
 #'
 #' @examples
 #' # Example usage of the canavg function
+#' # Read in GLA detailed report. This report was generated at 45 N, over a full year, using all default parameter values.
+#' # Note - this filepath is incomplete. You need to map the filename in full to your canavg directory.
+#' my_report <- "extdata/45n_gladetrep.txt"
+#' # Execute function canavg
 #' canavg(gla_detrep = my_report, eyey = -8, eyez = 10, survmeth = "card", weightscalc = TRUE, diagnostics = TRUE)
 
 canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weightscalc = TRUE,  diagnostics=TRUE) {
