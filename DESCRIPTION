@@ -1,12 +1,17 @@
 Package: canavg
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Compute coefficients for weighted averaging of multiple canopy densiometer readings taken at a single point on the ground surface.
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: We do be getting boogier
-    Use four spaces when indenting paragraphs within the Description.
+Author: Clifton Albrecht
+Maintainer: Clifton Albrecht <albrechtcf@jacks.sfasu.edu>
+Description: Compute coefficients for weighted averaging of multiple canopy densiometer readings taken at a single point on the ground surface.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Imports:
+    car,
+    ggplot2,
+    rgl,
+    scatterplot3d,
+    tidyverse
 RoxygenNote: 7.3.1
