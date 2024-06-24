@@ -32,7 +32,7 @@ A list containing:
   \item{direction_weights_vector}{A numeric vector of direction weights. May be NA.}
   \item{full_points_data_tibble}{A tibble containing the full points data.}
   \item{Raw_GLA_report}{The raw report data from the Gap Light Analyzer. May be NA.}
-  \item{README}{A string noting whether or not a GLA detailed report was passed to the function and whether or not weighted averaging coefficients were calculated.}
+  \item{README}{A string noting whether or not a GLA detailed report was passed to the function and whether or not weighted averaging coefficients were calculated. Useful mainly when running the function multiple times with different argument settings.}
 }
 }
 \description{
