@@ -364,19 +364,19 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
       ) +
       scale_x_continuous(
         limits = c(0, 360),
-        breaks = seq(0, 360, by = 10)
+        breaks = c(0,45, 90, 135, 180, 225, 270, 315, 360)
       ) +
       scale_y_continuous(
         limits = c(0, 90),
-        breaks = seq(0, 90, by = 10)
+        breaks = c(0,15,30,45,60,75,90)
       ) +
       theme_minimal() +
       theme(
         plot.title = element_text(hjust = 0.5),
-        panel.grid.major = element_line(color = "black", linewidth = 0.5),  # Black major gridlines
-        panel.grid.minor = element_line(color = "black", linewidth = 0.25)  # Black minor gridlines
+        panel.grid.major.x = element_line(color = "black", linewidth = 0.5),
+        panel.grid.major.y = element_line(color = "black", linewidth = 0.5),
+        panel.grid.minor = element_blank()  # Remove minor gridlines
       )
-    dev.new()
     print(gg1)
 
     # visualize sky points corresponding to 96 mirror surface points
@@ -384,12 +384,12 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
       geom_point(shape = 19, size = 3) +  # Specify point shape
       scale_x_continuous(
         limits = c(0, 360),
-        breaks = seq(0, 360, by = 10),
+        breaks = seq(0, 360, by = 45),
         name = "Azimuth\n(degrees clockwise from north)"  # X-axis label
       ) +
       scale_y_continuous(
         limits = c(0, 90),
-        breaks = seq(0, 90, by = 10),
+        breaks = seq(0, 90, by = 15),
         name = "Altitude\n(degrees above horizon)"  # Y-axis label
       ) +
       labs(
@@ -402,9 +402,8 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
         plot.title = element_text(hjust = 0.5),  # Center plot title
         legend.position = "none",  # Remove legend
         panel.grid.major = element_line(color = "black", size = 0.5),  # Black major gridlines
-        panel.grid.minor = element_line(color = "black", size = 0.25)  # Black minor gridlines
+        panel.grid.minor = element_blank()  # Remove minor gridlines
       )
-    dev.new()
     print(gg2)
     }
   # define output list
