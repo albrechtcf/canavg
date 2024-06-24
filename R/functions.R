@@ -102,7 +102,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
   }
 
   if (eyey > 0) {
-    stop("Error: Variable 'eyey' must be below or equal to zero. The observer is standing in the negative part of the Y dimension. Did you manually set the value of 'eyey' and forget a negative sign?")
+    stop("Error: Variable 'eyey' must be below or equal to zero. The observer is standing in the negative part of the Y dimension. Did you manually set the value of 'eyey' to a non-default value and forget a negative sign?")
   }
 
   ### Define constants and XY grid of points on mirror surface
@@ -124,7 +124,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
     x_eng_vect <- NA
     y_eng_vect <- NA
   } else if (survmeth != "card" & survmeth != "rose") {
-    stop("Invalid value for argument 'survmeth'. Use 'card or rose' only.")
+    stop("Invalid value for argument 'survmeth'. Use 'card' or ose' only.")
   }
 
   ### Initialize output data frames
@@ -345,14 +345,14 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
       residuals = FALSE
     )
     # Add main title
-    title3d(main = "Mirror Surface Point in 3D Space", line = 2)
+    rgl::title3d(main = "Mirror Surface Point in 3D Space", line = 2)
     # Add axis labels
     rgl::mtext3d(text = "X Axis (inches) - Perpindicular to Direction of View", edge = "x-", line = 3)
     rgl::mtext3d(text = "Y Axis (inches) - Parallel to Direction of View", edge = "y-", line = 3)
     rgl::mtext3d(text = "Z Axis (inches) - Normal Line to the Ground", edge = "z-", line = 3)
 
     # display sunlight contribution by each azimuth-altitude bin in arbitary unit
-    gg1 <- ggplot(gla_report, aes(x = AziDegCenter, y = AltDegCenter, fill = AboveTotal)) +
+    gg1 <- ggplot2::ggplot(gla_report, aes(x = AziDegCenter, y = AltDegCenter, fill = AboveTotal)) +
       ggtitle("Contribution of Sun by Azimuth-Altitude Bins") +
       geom_raster(alpha = 0.9) +  # Set raster transparency
       scale_fill_viridis_c() +  # Apply viridis color scale
@@ -380,7 +380,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
     print(gg1)
 
     # visualize sky points corresponding to 96 mirror surface points
-    gg2<- ggplot(data = out3, aes(x = azmAng, y = altAng, color = factor(index))) +
+    gg2<- ggplot2::ggplot(data = out3, aes(x = azmAng, y = altAng, color = factor(index))) +
       geom_point(shape = 19, size = 3) +  # Specify point shape
       scale_x_continuous(
         limits = c(0, 360),
