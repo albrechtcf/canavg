@@ -301,13 +301,14 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
     mutate(AltDegMin = (AltBin-1)*(90/length(unique(AltBin)))) %>%
     # compute azimuth and altitude bin means degrees from bin number
     mutate(AziDegCenter = (AziDegMax + AziDegMin)/2 ) %>%
-    mutate(AltDegCenter = (AltDegMax + AltDegMin)/2 )
+    mutate(AltDegCenter = (AltDegMax + AltDegMin)/2 ) %>%
+    mutate(ATbA = AboveTotal/(TotalArea/0.000001))
 
   # if incorrect number of azimuth and altitude bands used, throw error
   if (length(unique(gla_report$AziBin)) != 90 | length(unique(gla_report$AltBin)) != 45) {
     stop("Insufficient number of azimuth or altitude bins. \nEnsure that GLA output is divided into exactly 90 azimuth bins and 45 altitude bins.\nYou will need to return to GLA, reconfigure the output, and re-run calculations there.")}
 
-  # apply gla_report$AboveTotal values to out3 rows based on azimuth and altitude
+  # apply gla_report$ATbA values to out3 rows based on azimuth and altitude
   # note - this is the important densiometer-GLA calibration step! All prior to this is preparation.
   for (k in 1:nrow(out3)) {
     # pull out individual azimuth and altitude values and numbers
@@ -321,7 +322,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
       # for altitude - pick the row within this column which contains the point - this yields a single azi-alt bin
       filter(AltDegMax > mirrorptAlt & AltDegMin < mirrorptAlt) %>%
       # extract insolation value
-      dplyr::select(AboveTotal)
+      dplyr::select(ATbA)
   }
 
   #
@@ -364,7 +365,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
     rgl::mtext3d(text = "Z Axis (inches) - Normal Line to the Ground", edge = "z-", line = 3)
 
     # display sunlight contribution by each azimuth-altitude bin in arbitary unit
-    gg1 <- ggplot2::ggplot(gla_report, aes(x = AziDegCenter, y = AltDegCenter, fill = AboveTotal)) +
+    gg1 <- ggplot2::ggplot(gla_report, aes(x = AziDegCenter, y = AltDegCenter, fill = ATbA)) +
       ggtitle("Contribution of Sun by Azimuth-Altitude Bins") +
       geom_raster(alpha = 0.9) +  # Set raster transparency
       scale_fill_viridis_c() +  # Apply viridis color scale
