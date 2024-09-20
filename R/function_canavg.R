@@ -240,7 +240,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
           mutate(azmAng = NA) %>%
           mutate(altAng = NA) %>%
           mutate(index = as.factor(dirscomplete[j])) %>%
-          select(index, everything())
+          dplyr::select(index, everything())
       }
 
       # Define the points
@@ -333,7 +333,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
     }
     dirTotals[p] <- out3 %>%
       filter(index == dirscomplete[p]) %>%
-      select(total_brightness) %>%
+      dplyr::select(total_brightness) %>%
       sum()
   }
 
@@ -422,7 +422,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
   # define output list
   # list contains all mirror XYZ coordinates, azimuth and altitude of assoc. points in sky, and insolation values
 
-    out4 <- out3 %>% select(-group)
+    out4 <- out3 %>% dplyr::select(-group)
 
     output_full <- list(dirWeights,
                         out4,
@@ -432,7 +432,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
     names(output_full) <- c("direction_weights_vector","full_points_data_tibble","Raw GLA report","README")
   } else if (weightscalc == FALSE) {
 
-    out4 <- out3 %>% select(-group)
+    out4 <- out3 %>% dplyr::select(-group)
     dirWeights <- NA
     gla_report <- NA
     output_full <- list(dirWeights,
