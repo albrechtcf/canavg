@@ -366,7 +366,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
 
     # display sunlight contribution by each azimuth-altitude bin in arbitary unit
     gg1 <- ggplot2::ggplot(gla_report, aes(x = AziDegCenter, y = AltDegCenter, fill = ATbA)) +
-      ggtitle("Contribution of Sun by Azimuth-Altitude Bins") +
+      ggtitle("PAR Per 0.000001th Area of Sky Hemisphere") +
       geom_raster(alpha = 0.9) +  # Set raster transparency
       scale_fill_viridis_c() +  # Apply viridis color scale
       labs(
