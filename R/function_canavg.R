@@ -365,15 +365,14 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
     rgl::mtext3d(text = "Z Axis (inches) - Normal Line to the Ground", edge = "z-", line = 3)
 
     # display sunlight contribution by each azimuth-altitude bin in arbitary unit
-    gg1 <- ggplot2::ggplot(gla_report, aes(x = AziDegCenter, y = AltDegCenter, fill = ATbA)) +
-      ggtitle("PAR Per 0.000001th Area of Sky Hemisphere") +
+    gg1 <- ggplot2::ggplot(gla_report, aes(x = AziDegCenter, y = AltDegCenter, fill = ATbA)) +      
       geom_raster(alpha = 0.9) +  # Set raster transparency
       scale_fill_viridis_c() +  # Apply viridis color scale
       labs(
         x = "Azimuth\n(degrees clockwise from north)",
         y = "Altitude\n(degrees above horizon)",
         fill = "Legend\nUnits Determined\nin GLA",
-        title = "Contribution of Sun by Azimuth-Altitude Bins"
+        title = "Incident PAR per millionth of sky hemisphere"
       ) +
       scale_x_continuous(
         limits = c(0, 360),
@@ -406,7 +405,7 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
         name = "Altitude\n(degrees above horizon)"  # Y-axis label
       ) +
       labs(
-        title = "Azimuth and altitude of each of 96 points in each of four cardinal directions",
+        title = "Spherical coordinates (azimuth and altitude) of each of 96 points\nin each of four cardinal directions",
         color = "Index"  # Legend title for color scale
       ) +
       theme_minimal() +
@@ -418,6 +417,40 @@ canavg <- function(gla_detrep = NA, eyey=-8, eyez=10, survmeth = "card", weights
         panel.grid.minor = element_blank()  # Remove minor gridlines
       )
     print(gg2)
+
+    # combine gg1 and gg2 to produce incident PAR map with overlaid points
+    gg_combined <- ggplot(data = gla_report, aes(x = AziDegCenter, y = AltDegCenter, fill = ATbA)) +
+        # Raster layer from gg1
+        geom_raster(alpha = 0.9) +
+        scale_fill_viridis_c() +
+        labs(
+          x = "Azimuth\n(degrees clockwise from north)",
+          y = "Altitude\n(degrees above horizon)",
+          fill = "Legend\nUnits Determined\nin GLA",
+          title = "Incident PAR per millionth of sky hemisphere \n+ overlaid point spherical coordinates"
+        ) +
+        scale_x_continuous(
+          limits = c(0, 360),
+          breaks = c(0, 45, 90, 135, 180, 225, 270, 315, 360)
+        ) +
+        scale_y_continuous(
+          limits = c(0, 90),
+          breaks = c(0, 15, 30, 45, 60, 75, 90)
+        ) +
+        # Overlay points as unfilled white circles
+        geom_point(data = out3, aes(x = azmAng, y = altAng), 
+                   inherit.aes = FALSE, color = "white", fill = NA, shape = 21, size = 0.75) +
+        theme_minimal() +
+        theme(
+          plot.title = element_text(hjust = 0.5),
+          panel.grid.major.x = element_line(color = "black", linewidth = 0.5),
+          panel.grid.major.y = element_line(color = "black", linewidth = 0.5),
+          panel.grid.minor = element_blank()  # Remove minor gridlines
+        )
+      
+      # Print the combined plot
+      print(gg_combined)
+    
     }
   # define output list
   # list contains all mirror XYZ coordinates, azimuth and altitude of assoc. points in sky, and insolation values
